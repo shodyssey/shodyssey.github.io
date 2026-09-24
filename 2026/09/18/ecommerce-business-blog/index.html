@@ -1,0 +1,775 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>电商平台主要业务 | Shodyssey</title><meta name="author" content="Shodyssey"><meta name="copyright" content="Shodyssey"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="电商平台主要业务 电商平台上主要的七条业务线：搜索、推荐、广告、营销&#x2F;大促、发券&#x2F;补贴、定价、风控。每条业务的盈利模式、建模思路、评估指标都不一样。 把七条业务线全部拆开放在这里讲一讲，每个业务按「业务逻辑和场景 → 建模思路 → 评估指标 → 实际例子」的顺序展开。技术细节聚焦工业界主流成熟的方案，前沿的建模细节内容或者工程内容不在展开讨论。  电商领域的概念词典 钱和量的概念  GMV：Gr">
+<meta property="og:type" content="article">
+<meta property="og:title" content="电商平台主要业务">
+<meta property="og:url" content="https://shodyssey.github.io/2026/09/18/ecommerce-business-blog/index.html">
+<meta property="og:site_name" content="Shodyssey">
+<meta property="og:description" content="电商平台主要业务 电商平台上主要的七条业务线：搜索、推荐、广告、营销&#x2F;大促、发券&#x2F;补贴、定价、风控。每条业务的盈利模式、建模思路、评估指标都不一样。 把七条业务线全部拆开放在这里讲一讲，每个业务按「业务逻辑和场景 → 建模思路 → 评估指标 → 实际例子」的顺序展开。技术细节聚焦工业界主流成熟的方案，前沿的建模细节内容或者工程内容不在展开讨论。  电商领域的概念词典 钱和量的概念  GMV：Gr">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://shodyssey.github.io/img/butterfly-icon.png">
+<meta property="article:published_time" content="2026-09-18T00:30:00.000Z">
+<meta property="article:modified_time" content="2026-09-24T02:04:10.916Z">
+<meta property="article:author" content="Shodyssey">
+<meta property="article:tag" content="定价">
+<meta property="article:tag" content="广告">
+<meta property="article:tag" content="推荐">
+<meta property="article:tag" content="搜索">
+<meta property="article:tag" content="电商">
+<meta property="article:tag" content="营销">
+<meta property="article:tag" content="风控">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://shodyssey.github.io/img/butterfly-icon.png"><script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "电商平台主要业务",
+  "url": "https://shodyssey.github.io/2026/09/18/ecommerce-business-blog/",
+  "image": "https://shodyssey.github.io/img/butterfly-icon.png",
+  "datePublished": "2026-09-18T00:30:00.000Z",
+  "dateModified": "2026-09-24T02:04:10.916Z",
+  "author": [
+    {
+      "@type": "Person",
+      "name": "Shodyssey",
+      "url": "https://shodyssey.github.io"
+    }
+  ]
+}</script><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="https://shodyssey.github.io/2026/09/18/ecommerce-business-blog/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css?v=5.7.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@7.3.1/css/all.min.css"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        const data = { value }
+
+        if (ttl != null) {
+          data.expiry = Date.now() + ttl * 86400000
+        }
+
+        localStorage.setItem(key, JSON.stringify(data))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return
+
+        try {
+          const data = JSON.parse(itemStr)
+
+          if (data.expiry && Date.now() > data.expiry) {
+            localStorage.removeItem(key)
+            return
+          }
+
+          return data.value
+        } catch {
+          localStorage.removeItem(key)
+        }
+      }
+    }
+
+    const scriptCache = new Map()
+    const cssCache = new Map()
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => {
+        if (scriptCache.has(url)) {
+          return scriptCache.get(url)
+        }
+
+        const promise = new Promise((resolve, reject) => {
+          const script = document.createElement('script')
+
+          script.src = url
+          script.async = true
+
+          for (const key in attr) {
+            script.setAttribute(key, attr[key])
+          }
+
+          script.onload = resolve
+          script.onerror = reject
+
+          document.head.appendChild(script)
+        })
+
+        scriptCache.set(url, promise)
+
+        return promise
+      },
+      getCSS: (url, id) => {
+        if (cssCache.has(url)) {
+          return cssCache.get(url)
+        }
+
+        const promise = new Promise((resolve, reject) => {
+          const link = document.createElement('link')
+
+          link.rel = 'stylesheet'
+          link.href = url
+
+          if (id) {
+            link.id = id
+          }
+
+          link.onload = resolve
+          link.onerror = reject
+
+          document.head.appendChild(link)
+        })
+
+        cssCache.set(url, promise)
+
+        return promise
+      },
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!false && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const metaThemeColor = document.querySelector('meta[name="theme-color"]')
+      const activateDarkMode = () => {
+        document.documentElement.dataset.theme = 'dark'
+        if (metaThemeColor !== null) {
+          metaThemeColor.setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.dataset.theme = 'light'
+        if (metaThemeColor !== null) {
+          metaThemeColor.setAttribute('content', '#ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":false},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'null',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.13.0/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyloadPlugin: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '电商平台主要业务',
+  isHighlightShrink: false,
+  isToc: true,
+  pageType: 'post'
+}</script><meta name="generator" content="Hexo 8.1.2"></head><body><div class="post" id="body-wrap"><header class="post-bg" id="page-header"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">Shodyssey</span></a><a class="nav-page-title" href="/"><span class="site-name">电商平台主要业务</span><span class="site-name"><i class="fa-solid fa-circle-arrow-left"></i><span>  返回首页</span></span></a></span><div id="menus"></div></nav><div id="post-info"><h1 class="post-title">电商平台主要业务</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2026-09-18T00:30:00.000Z" title="发表于 2026-09-18 08:30:00">2026-09-18</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2026-09-24T02:04:10.916Z" title="更新于 2026-09-24 10:04:10">2026-09-24</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E6%8E%A8%E8%8D%90%E7%B3%BB%E7%BB%9F/">推荐系统</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title=""><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">浏览量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="container post-content" id="article-container"><h1 id="电商平台主要业务"><a class="markdownIt-Anchor" href="#电商平台主要业务"></a> 电商平台主要业务</h1>
+<p>电商平台上主要的七条业务线：搜索、推荐、广告、营销/大促、发券/补贴、定价、风控。每条业务的盈利模式、建模思路、评估指标都不一样。</p>
+<p>把七条业务线全部拆开放在这里讲一讲，每个业务按「业务逻辑和场景 → 建模思路 → 评估指标 → 实际例子」的顺序展开。技术细节聚焦工业界主流成熟的方案，前沿的建模细节内容或者工程内容不在展开讨论。</p>
+<h2 id="电商领域的概念词典"><a class="markdownIt-Anchor" href="#电商领域的概念词典"></a> 电商领域的概念词典</h2>
+<p><strong>钱和量的概念</strong></p>
+<ul>
+<li><strong>GMV</strong>：Gross Merchandise Volume，成交总额。平台所有订单金额总和，电商最核心的经营指标；</li>
+<li><strong>UV</strong>：Unique Visitor，独立访客数。同一用户多次访问只算一次；</li>
+<li><strong>转化率</strong>：完成目标行为的用户占比。目标行为可以是点击、加购、下单、支付，具体看业务；</li>
+<li><strong>客单价</strong>：平均每笔订单金额（GMV 除以订单数），可以继续拆成「件数 × 件单价」；</li>
+<li><strong>ROI</strong>：Return on Investment，投入产出比（产出金额 / 投入成本）。一个用来衡量花费值不值的指标，在电商的营销、广告、补贴等场景都用它衡量钱花得值不值；</li>
+<li><strong>核销率</strong>：领了优惠券或参与活动的人里，最终实际使用的比例。</li>
+</ul>
+<p><strong>模型和链路的概念</strong></p>
+<ul>
+<li><strong>召回</strong>：从全量商品池（亿级）快速筛出候选集（万级）的过程。不追求精准，追求快和全；</li>
+<li><strong>粗排/精排</strong>：召回之后的排序阶段。粗排用轻量模型从万级筛到千级，精排用重量级模型从千级排到百级甚至最终展示的十几个；</li>
+<li><strong>双塔模型</strong>：把「用户侧特征」和「商品侧特征」分别编码成两个向量，用向量内积近似「用户喜欢商品的程度」。好处是商品向量可以离线算好、在线快速检索；</li>
+<li><strong>CTR/CVR 预估</strong>：预测点击率（曝光后被点击的概率）/ 转化率（点击后完成购买等动作的概率）。几乎所有排序业务的地基；</li>
+<li><strong>AUC</strong>：排序类指标，衡量「随机抽一个正样本和一个负样本，模型把正样本排前面的概率」。只关心顺序，不关心分数绝对值；</li>
+<li><strong>校准</strong>：把模型输出的分数修正成真实概率的过程。排序只看相对大小，出价、定价、补贴这类要拿概率算钱的场景需要校准；</li>
+<li><strong>eCPM</strong>：effective Cost Per Mille，每千次展示的预估收入。广告竞价里统一所有计费模式的通用货币；</li>
+<li><strong>uplift</strong>：增量，「干预（发券/发 Push）相比不干预，能多带来多少效果」。因果推断的核心概念；</li>
+<li><strong>价格弹性</strong>：价格变化 1% 时销量变化百分之几。定价的核心参数；</li>
+<li><strong>设备指纹</strong>：根据设备硬件信息（型号、分辨率、语言等）生成唯一标识，识别「同一台设备背后的账号是不是同一个人」。</li>
+</ul>
+<p><strong>指标口径提醒</strong>：同一个指标在不同业务里口径可能不同（比如 pCVR 有的平台是点击后转化、有的是展示后转化），一般看数据前要先确认分母。</p>
+<hr />
+<h2 id="一-搜索"><a class="markdownIt-Anchor" href="#一-搜索"></a> 一、搜索</h2>
+<h3 id="11-业务逻辑和场景"><a class="markdownIt-Anchor" href="#11-业务逻辑和场景"></a> 1.1 业务逻辑和场景</h3>
+<p>先看一个用户视角的完整场景：晚上十点，用户打开 App，在搜索框输入「羽绒服女 中长款」。还没输完，输入法下方已经弹出 SUG 补全建议（输入&quot;羽绒&quot;弹出「羽绒服女」「羽绒服男」「羽绒服内胆」）。用户点了「羽绒服女」，结果页出来 30 个商品：前几个是广告位（带「广告」标），下面是自然结果。用户扫了两屏，点进第三个商品，加购，退出。</p>
+<p>这个场景里有几个比较关键的事实：</p>
+<ol>
+<li><strong>搜索是意图最明确的流量</strong>。用户知道自己要什么，转化意愿远高于推荐流。电商平台里搜索成交占比通常远高于其他入口，所以搜索的第一任务是满足需求，不是给平台赚钱；</li>
+<li><strong>SUG 是搜索的第一入口</strong>。很多平台用户点补全建议产生的搜索量，比用户自己完整输入还大 [2]。SUG 做得差，用户可能根本不会完成这次搜索；</li>
+<li><strong>结果页是混合的</strong>：广告位和自然结果同页竞争。用户搜「羽绒服女」，前几个商品可能是广告（按 eCPM 竞价，见广告章），后面才是自然排序结果。</li>
+</ol>
+<p>搜索业务的三个对象 [2]：query（用户输入的查询词）、商品（候选内容）、SUG（输入过程中的补全建议）。</p>
+<p>用户满不满意，业界拆成五个维度（王树森《搜索引擎技术》的框架，搜索业务最重要的概念）[2]：</p>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>含义</th>
+<th>例子</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>相关性</td>
+<td>商品是否回答了这条 query，只看 query 和商品本身</td>
+<td>搜「羽绒服」出来羽绒服，不是棉服</td>
+</tr>
+<tr>
+<td>内容质量</td>
+<td>商品信息本身好不好（详情页、标题、图片真实清晰）</td>
+<td>标题党、图实不符会降权</td>
+</tr>
+<tr>
+<td>时效性</td>
+<td>query 是否需要新内容</td>
+<td>11 月初搜「双十一」要新活动信息，5 月再搜同词需求完全不同</td>
+</tr>
+<tr>
+<td>个性化</td>
+<td>有用户画像时把更符合个人兴趣的商品往前排</td>
+<td>常买大码的用户，搜「连衣裙」优先出大码</td>
+</tr>
+<tr>
+<td>地域性</td>
+<td>附近、同城</td>
+<td>人在上海搜「羽绒服」不该出北京同城店</td>
+</tr>
+</tbody>
+</table>
+<p>相关性是地基：结果和 query 无关，其他维度全免谈。</p>
+<p><strong>盈利模式</strong>：搜索自然结果本身不直接收钱，但搜索是广告的最大流量入口（用户搜&quot;手机&quot;，页面前几位是广告位），同时搜索成交贡献平台佣金。</p>
+<h3 id="12-业务链路为什么是漏斗"><a class="markdownIt-Anchor" href="#12-业务链路为什么是漏斗"></a> 1.2 业务链路：为什么是漏斗</h3>
+<p>标准流水线 [1,2]：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">查询词处理（分词/改写/类目识别）</span><br><span class="line">    → 召回（亿级 → 万级）</span><br><span class="line">    → 粗排（万级 → 千级）</span><br><span class="line">    → 精排（千级 → 百级）</span><br><span class="line">    → 展示</span><br></pre></td></tr></table></figure>
+<p>每一层为什么存在：<strong>算力瓶颈</strong>。对亿级商品逐一做精细打分，服务器扛不住、用户等不起。所以漏斗逐层收紧：打分量逐级变少，模型逐级变大 [1,2]。</p>
+<p><strong>召回层（亿→万）</strong>：目标是「别漏掉」而不是「选最好」。三路并行 [2]：</p>
+<ol>
+<li><strong>文本召回</strong>：倒排索引。商品标题分词后建立「词 → 商品列表」的索引（叫 posting list），线上把 query 分词后查表。经典打分函数是 BM25，基于词频和文档长度算相关性分。直觉：一个词在标题里出现次数越多越相关，但标题越长每个词的权重越被稀释；</li>
+<li><strong>向量召回</strong>：双塔模型。query 和商品分别编码成向量，在线用近似最近邻（ANN）检索「内积最大的商品」。注意要拆两路：<strong>相关性向量</strong>（学文本相关性，不用天天更新）和<strong>个性化向量</strong>（学点击行为，要频繁更新），两者不能合成一路 [2]。为什么：相关性和点击偏好是两种信号，混在一起互相干扰；</li>
+<li><strong>离线补充</strong>：头部 query（搜索量大、结果稳定的词）的结果提前算好缓存。夜里空闲时跑一遍，白天直接读，省在线算力 [2]。</li>
+</ol>
+<p><strong>排序层（万→百）</strong>：粗排用轻量模型筛到数千，精排用重量级模型排到数百。精排打分融合多个信号：相关性、点击率、质量、时效、地域 [2]。注意搜索的 CTR 模型和推荐很像，但搜索里 CTR 只是信号之一，相关性压过它 [2]。</p>
+<p><strong>重排层（百→十几个）</strong>：最终展示前的动态调整：打散同款（别让 30 个结果全是同一家店的同款）、控制价格带、插入用户近期看过的商品 [1]。</p>
+<h3 id="13-建模思路和技术关注点"><a class="markdownIt-Anchor" href="#13-建模思路和技术关注点"></a> 1.3 建模思路和技术关注点</h3>
+<p><strong>相关性建模</strong>：深度学习时代的主流是 BERT 类模型，召回用双塔（快），粗排精排用交叉编码器（query 和商品充分交叉，准）。训练链路：预训练 → 用日志数据后预训练 → 人工标注微调 → 蒸馏成小模型上线（大模型蒸馏到 4/6/12 层才能扛住线上延迟）[2]。</p>
+<p><strong>排序训练的三个粒度</strong>（LTR，Learning to Rank，排序学习），选型是技术关注点 [2]：</p>
+<ul>
+<li><strong>pointwise</strong>：把排序当回归/分类，每个样本单独打分。简单，适合基线；</li>
+<li><strong>pairwise</strong>：两两比较，让「相关的那篇」排过「不相关的」。盯正逆序比时它通常更好；</li>
+<li><strong>listwise</strong>：整组排序打分，排名靠前的错误罚得更重。盯 NDCG 时它通常更好。</li>
+</ul>
+<p><strong>多信号融合</strong>：早期用人工公式（按相关性分档，档内加权和），好处是出问题能调权重、迭代快；做到一定阶段再上融合模型（拟合人工标注的综合满意度），业务指标往往跳一截，但之后调起来更难 [2]。这是搜索团队常纠结的取舍：可解释性 vs 上限。</p>
+<p><strong>query 理解</strong>（查询词处理，QP）：中文没有空格，先分词；分出来的词要分权重（核心词/冗余词）；再识别类目和意图（时效意图、地域意图、求购意图决定走哪条链路）；必要时改写（「附近的餐厅」→「餐厅」再按距离过滤）[2]。</p>
+<h3 id="14-评估指标"><a class="markdownIt-Anchor" href="#14-评估指标"></a> 1.4 评估指标</h3>
+<p>指标体系分三层 [2]：</p>
+<table>
+<thead>
+<tr>
+<th>层级</th>
+<th>指标</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>北极星</td>
+<td>DAU（日活）、搜索渗透率 = 当天用过搜索的人数 / DAU</td>
+<td>搜索做得好不好，最终看用的人多不多、留不留得住</td>
+</tr>
+<tr>
+<td>过程指标</td>
+<td>点击率、有点比（有点击的搜索占比）、首屏有点比、首点位置、交互率、换词率</td>
+<td>容易显著、滞后小，但只是过程不是结果</td>
+</tr>
+<tr>
+<td>相关性专项</td>
+<td>DCG@k / NDCG@k（排名靠前的相关性加权）、SBS 人工评估（同一条 query 左右对照整页判 good/same/bad，汇总成 GSB）</td>
+<td>挡住「点击涨了、人看起来更差」的策略</td>
+</tr>
+</tbody>
+</table>
+<p><strong>技术关注点</strong>：搜索和推荐指标不能混写。推荐看点击率和成交，搜索还要盯相关性和满意度。成熟的搜索团队每月做 SBS 人工评估，从真实曝光里抽头中尾 query 打分，看体验逐月是否改善，同时攒 bad case 限期消化 [2]。</p>
+<hr />
+<h2 id="二-推荐"><a class="markdownIt-Anchor" href="#二-推荐"></a> 二、推荐</h2>
+<h3 id="21-业务逻辑和场景"><a class="markdownIt-Anchor" href="#21-业务逻辑和场景"></a> 2.1 业务逻辑和场景</h3>
+<p>场景：用户睡前打开 App 首页，刷「猜你喜欢」。她没有明确想买什么，就是逛逛。刷了 5 屏，点开 3 个商品，其中一个是 10 分钟前刚在详情页看过的口红同款，一个是因为首页推了「她上个月搜过的扫地机器人降价了」。</p>
+<p>推荐和搜索的区别一句话：搜索是「用户找商品」，推荐是「商品找用户」。用户没有明确意图，平台的目标是<strong>让用户多逛、多买</strong>：停留时间长了，成交机会就多。</p>
+<p><strong>盈利模式</strong>：推荐位成交贡献佣金；推荐流里也插广告（信息流广告）。所以推荐的排序目标本质上是「预估成交价值」，不是单纯的「用户喜不喜欢」。</p>
+<h3 id="22-业务链路10-亿到-10-的漏斗"><a class="markdownIt-Anchor" href="#22-业务链路10-亿到-10-的漏斗"></a> 2.2 业务链路：10 亿到 10 的漏斗</h3>
+<p>用一组具体数字看（电商推荐的标准描述）[1]：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">10 亿商品池</span><br><span class="line">   → 召回：筛出 1 万候选</span><br><span class="line">   → 精排：排到 100 个</span><br><span class="line">   → 重排：动态调整成最终展示的 10 个</span><br></pre></td></tr></table></figure>
+<p><strong>召回（10 亿→1 万）</strong>：为什么不能对 10 亿个商品逐一打分？算力崩盘、响应超时 [1]。用结构简单、速度快的模型，多路并行 [1]：</p>
+<ul>
+<li>用户历史兴趣类目下的商品；</li>
+<li>「和你购买力相似的人买过的商品」（协同过滤思路，经典 ItemCF 的直觉：买过同款的人大概率喜欢同款）；</li>
+<li>热门爆款；</li>
+<li>用户行为序列（最近浏览/点击过的相似品）。</li>
+</ul>
+<p><strong>精排（1 万→100）</strong>：重算力的打分模型，多维加权：用户画像 × 商品权重 × 商业利益。核心是两个预估模型：CTR（点不点）和 CVR（买不买）[1]。</p>
+<p><strong>重排（100→10）</strong>：最后一步最体现「人性化」，抓取用户最近几秒的实时行为 [1]：</p>
+<ul>
+<li>你刚快速划走了某类商品，重排立刻降低该类权重（划走是负面信号）；</li>
+<li>你刚搜索过某个具体型号，重排插入该型号（搜索是强意图信号）；</li>
+<li>大促期间，会场商品临时加权。</li>
+</ul>
+<h3 id="23-建模思路和技术关注点"><a class="markdownIt-Anchor" href="#23-建模思路和技术关注点"></a> 2.3 建模思路和技术关注点</h3>
+<p><strong>CTR 预估</strong>：经典结构是 DIN（Deep Interest Network，深度兴趣网络）。技术关注点：用户的历史行为序列不能简单平均，用户昨天看了口红、上周看了球鞋、三个月前看了婴儿车，推口红时应该重点参考「看口红」的行为，而不是把三个月前婴儿车的兴趣平均进来。DIN 用注意力机制找「和当前候选商品相关的历史行为」加权聚合（综合知识，未抓一手来源）。</p>
+<p><strong>CVR 预估</strong>：技术关注点：点击样本稀疏（点击远少于曝光），直接用点击样本训练有两个结构性问题：样本选择偏差（训练用点击样本、推理对全量曝光）和数据稀疏（点击样本只有曝光的 4% 量级）。ESMM 的解法：利用「曝光→点击→转化」行为链，pCTCVR = pCTR × pCVR 恒等式，在全量曝光样本上训练 CTR 和 CTCVR 两个任务，pCVR 作为中间变量隐式学习，不直接给 pCVR 监督信号 [9]。</p>
+<p><strong>多目标融合</strong>：点击、加购、收藏、购买、时长多个目标联合建模，加权融合。权重怎么定：业务经验 + A/B 实验迭代。没有放之四海皆准的权重，这是推荐排序的核心难题 [1]。</p>
+<p><strong>重排策略</strong>：MMR（最大边际相关）：在「相关性强」和「和前几个结果不重复」之间平衡；价格带打散（别一屏全是高价品或全是低价品）；同款去重。</p>
+<p><strong>冷启动</strong>：新用户/新商品没行为数据。做法：属性相似迁移（找相似商品/相似用户借数据）。新商品先靠类目均值、图片/标题相似品的数据撑住，积累行为后逐步过渡到个性化。</p>
+<h3 id="24-评估指标"><a class="markdownIt-Anchor" href="#24-评估指标"></a> 2.4 评估指标</h3>
+<ul>
+<li>效率：CTR、CVR、人均浏览时长、人均 GMV、成交转化率；</li>
+<li>多样性：类目覆盖率、同质化率（别全是同款）；</li>
+<li>体验：曝光未点击率（刷到不想看）、退出率；</li>
+<li>实验：A/B 测试看<strong>增量 GMV</strong>（实验组减对照组），只看 CTR 会陷入点击陷阱：点得多买得少（标题党商品点击高转化低）。</li>
+</ul>
+<p><strong>关键张力</strong>：点击 vs 成交。标题党商品点击高转化低，高价品转化高点击低。多目标加权是推荐排序的核心难题 [1]。</p>
+<hr />
+<h2 id="三-广告"><a class="markdownIt-Anchor" href="#三-广告"></a> 三、广告</h2>
+<h3 id="31-业务逻辑和场景"><a class="markdownIt-Anchor" href="#31-业务逻辑和场景"></a> 3.1 业务逻辑和场景</h3>
+<p>广告是电商平台<strong>最直接、占比最高的收入来源</strong>：商家向平台买流量。</p>
+<p>场景：商家老王在平台开店卖保温杯，报名了平台的搜索广告。他设置：按点击付费（CPC），愿意为一次点击付 1 元，日预算 500 元。用户搜「保温杯」，系统在那一瞬间做竞价：所有想投「保温杯」这个词的广告主（可能几十个）都报了自己的出价和预估点击率，系统算 eCPM 排序，前几名获得展示位。</p>
+<p>程序化广告的报价本质是一条流水线 [5]：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">广告主目标 + 请求上下文 + 用户/广告特征</span><br><span class="line">    → pCTR / pCVR / 价值预估</span><br><span class="line">    → 理论价值（单次展示值多少钱）</span><br><span class="line">    → 校准、预算、风险调节</span><br><span class="line">    → 最终报价 bid</span><br></pre></td></tr></table></figure>
+<p>它不是「报价计算器」，而是把「广告主目标」翻译成「单次曝光价值」的决策器 [5]。广告主说「我愿意为一次下单付 100 元」，系统要连续回答：这个用户会不会点？点了会不会下单？这次展示值多少？当前竞争环境里最多报多少？前两个问题交给预估模型，第三个交给价值换算，第四个才是报价控制 [5]。</p>
+<h3 id="32-竞价机制ecpm-公式体系核心"><a class="markdownIt-Anchor" href="#32-竞价机制ecpm-公式体系核心"></a> 3.2 竞价机制：eCPM 公式体系（核心）</h3>
+<p>不同广告主说的不是同一种语言：有人按展示付费（CPM）、有人按点击（CPC）、有人按转化（CPA）。系统必须把所有人都翻译到同一个单位，<strong>eCPM</strong>（每千次展示的预期价值）[5]：</p>
+<table>
+<thead>
+<tr>
+<th>计费模式</th>
+<th>eCPM 公式</th>
+<th>通俗解释</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>CPM</td>
+<td>eCPM = CPM 出价</td>
+<td>按展示收钱，出价就是展示价值</td>
+</tr>
+<tr>
+<td>CPC</td>
+<td>eCPM = CPC出价 × pCTR × 1000</td>
+<td>点击才收钱，要乘「这次展示被点击的概率」</td>
+</tr>
+<tr>
+<td>CPA / oCPM</td>
+<td>eCPM = 目标CPA × pCTR × pCVR × 1000</td>
+<td>按转化收钱，要乘两个概率</td>
+</tr>
+<tr>
+<td>ROAS</td>
+<td>eCPM ≈ pCTR × pCVR × 预估成交价值 × 1000</td>
+<td>看成交额回报，再加金额预估</td>
+</tr>
+</tbody>
+</table>
+<p>pCTR/pCVR 的 p 是 <strong>predicted</strong>（预估）：模型对这一次具体展示的条件概率，不是历史报表里的平均 CTR [5]。</p>
+<p><strong>关键例子</strong>（同一流量、同一用户、同一版位）[5]：</p>
+<table>
+<thead>
+<tr>
+<th>广告</th>
+<th>CPC 出价</th>
+<th>pCTR</th>
+<th>eCPM</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>A</td>
+<td>4 元</td>
+<td>2%</td>
+<td>80 元</td>
+</tr>
+<tr>
+<td>B</td>
+<td>2 元</td>
+<td>5%</td>
+<td>100 元</td>
+</tr>
+</tbody>
+</table>
+<p>A 更愿意为一次点击付 4 元，B 只愿付 2 元，但 B 的广告被点击的概率更高（5% vs 2%）。eCPM 把两者放同一把尺子：B 的每千次展示预期价值 100 元 &gt; A 的 80 元，<strong>B 赢</strong>。这就是「出价不是广告主填的那个数字，而是目标 × 概率 × 约束算出来的最终报价」[5]。</p>
+<p>一个容易踩的坑：pCVR 的定义口径。有的平台是「点击后转化率」，有的是「展示后转化率」。跨平台看公式前先问分母，否则 pCTR × pCVR 会把同一段概率重复乘 [5]。</p>
+<h3 id="33-建模思路和技术关注点"><a class="markdownIt-Anchor" href="#33-建模思路和技术关注点"></a> 3.3 建模思路和技术关注点</h3>
+<p><strong>pCTR / pCVR 预估</strong>：与推荐同源的技术栈（DIN 类结构、ESMM 类全空间多任务 [9]）。输入四类特征 [5]：</p>
+<ul>
+<li>用户特征：兴趣、近期行为、设备环境、地域；</li>
+<li>广告特征：类目、素材文本/图片、落地页主题、历史状态；</li>
+<li>上下文特征：媒体、版位、时间、网络环境；</li>
+<li>交叉关系：这个用户和这条广告、这个版位是否「合得来」。</li>
+</ul>
+<p><strong>校准（技术关注点，广告业务的生命线）</strong>：排序准 ≠ 能安全出价。假设模型给一组流量的 pCTR 都报 2%，相对顺序完全正确，但真实点击率只有 1%，做推荐排序这个偏差未必致命，做竞价意味着系统把价值高估一倍、报价跟着高 [5]。所以工程上持续看两件事：</p>
+<ul>
+<li><strong>区分度</strong>：能不能把高意向排前面（AUC 衡量）；</li>
+<li><strong>校准度</strong>：预测 2% 的流量真实是否接近 2%（COPC 衡量，COPC = sum(click)/sum(pctr)，小于 1 说明预测偏高）。</li>
+</ul>
+<p>校准的常用工具是保序回归：带单调约束的最小二乘，只修概率刻度、不破坏排序（详见我之前写的《保序回归原理与校准实践》草稿）。</p>
+<p><strong>出价调节系数（coef）</strong>：理论价值到实际报价之间要过调节，职责四类 [5]：</p>
+<ol>
+<li>校准偏差：不同媒体/版位/时段的系统性偏移；</li>
+<li>不确定性控制：冷启动样本少时保守，不能和数据充分的广告一样激进；</li>
+<li>预算节奏（pacing）：别上午烧完全天预算；</li>
+<li>实验保护：模型更新先用小流量验证，避免一次调整把成本曲线推偏。</li>
+</ol>
+<p><strong>冷启动</strong>：新广告没有历史数据，pCTR/pCVR 退化成类目均值先验。标准流程：借先验（类目/素材/相似广告）→ 控风险（不确定性高的保守报价）→ 小流量探索 → 数据收敛后快速更新 [5]。</p>
+<h3 id="34-评估指标"><a class="markdownIt-Anchor" href="#34-评估指标"></a> 3.4 评估指标</h3>
+<ul>
+<li>平台侧：<strong>eCPM</strong>（核心，直接决定收入）、消耗（广告主总花费）、填充率（有广告可投的曝光占比）；</li>
+<li>广告主侧：CPA（单个转化的成本）、ROI/ROAS、ACP（平均每次点击成本）；</li>
+<li>诊断方法论（投放出问题的排查顺序）[5]：
+<ul>
+<li>有曝光有点击但转化成本高：pCVR 侧问题（预估不准/落地页差/归因延迟），只涨 CPC 是在给错误的人群买更多点击；</li>
+<li>预算充足但拿不到量：按「资格 → 召回 → 精排 → eCPM 竞争力」顺序排查，别一上来就断定出价低；</li>
+<li>成本突然波动：分媒体/分人群/分版位看预估与真实是否偏离，别急着怪调节系数。</li>
+</ul>
+</li>
+</ul>
+<hr />
+<h2 id="四-营销-大促"><a class="markdownIt-Anchor" href="#四-营销-大促"></a> 四、营销 / 大促</h2>
+<h3 id="41-业务逻辑和场景"><a class="markdownIt-Anchor" href="#41-业务逻辑和场景"></a> 4.1 业务逻辑和场景</h3>
+<p>营销是<strong>平台出钱买增长</strong>（区别于广告的商家出钱买流量）：大促（618/双11）、日常活动（秒杀/拼团/满减）、拉新（新人礼）。</p>
+<p>场景：双 12 大促，平台运营小王负责某女装店铺的大促销售目标。她的日常工作节奏：</p>
+<ul>
+<li><strong>蓄水期（大促前两周）</strong>：发预热券、引导加购。她盯的核心数不是 GMV，是<strong>加购数</strong>，加购是蓄水期最强的先行指标，用户加购了说明有购买意向，爆发期大概率会转化；</li>
+<li><strong>爆发期（大促当天）</strong>：秒杀、满减、定金尾款。盯 GMV 分时段进度：首日、前 2 小时完成多少，和同期对比；</li>
+<li><strong>返场期（大促后）</strong>：清尾货，看库存消化率。</li>
+</ul>
+<p>为什么大促对平台重要：GMV 集中爆发带来规模效应、品牌心智、商家粘性。对商家重要：冲销量、清库存、打爆款。双方目标在 GMV 上统一。</p>
+<h3 id="42-建模思路gmv-拆解公式大促预估的核心方法论"><a class="markdownIt-Anchor" href="#42-建模思路gmv-拆解公式大促预估的核心方法论"></a> 4.2 建模思路：GMV 拆解公式（大促预估的核心方法论）</h3>
+<p>大促销售预估的第一性公式（一线运营的标准拆法）[3]：</p>
+<p class='katex-block'><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><mtext>GMV</mtext><mo>=</mo><mtext>UV</mtext><mo>×</mo><mtext>支付转化率</mtext><mo>×</mo><mtext>客单价</mtext></mrow><annotation encoding="application/x-tex">\text{GMV} = \text{UV} \times \text{支付转化率} \times \text{客单价}
+</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.68333em;vertical-align:0em;"></span><span class="mord text"><span class="mord">GMV</span></span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:0.76666em;vertical-align:-0.08333em;"></span><span class="mord text"><span class="mord">UV</span></span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:0.76666em;vertical-align:-0.08333em;"></span><span class="mord text"><span class="mord cjk_fallback">支付转化率</span></span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:0.68333em;vertical-align:0em;"></span><span class="mord text"><span class="mord cjk_fallback">客单价</span></span></span></span></span></span></p>
+<p>这个公式的价值：把「预估 GMV」拆成三个可分别预估、可分别定位问题的量。GMV 不达标时，能定位是流量不够、转化不行、还是客单价掉了。</p>
+<p>每个量怎么估 [3]：</p>
+<ul>
+<li><strong>UV</strong>：参考历史同期 + 相似大促，比例外推。公式形式：((去年双12活动访客/去年双12预热访客) + (今年99活动访客/今年99预热访客)) / 2 × 今年双12预热访客。为什么取两路平均：单看去年可能没考虑店铺今年的流量基数变化，单看今年 99 大促又和双 12 的量级不同，两路交叉更稳；</li>
+<li><strong>支付转化率</strong>：多路交叉验证。参考去年 vs 今年两路推算，差异小取均值、差异大偏向今年。为什么：业务高速增长或大幅下滑时，去年的参考价值低，看今年更靠谱；</li>
+<li><strong>客单价</strong>：拆成「件数 × 件单价」。件单价看折扣力度差异（原文例子：中高端女装秋冬大促件单价浮动 100 元以内算正常），客件数看环比变化修正。</li>
+</ul>
+<p><strong>完整实例</strong>（2021 年双 12 某女装店，原文计算过程照录）[3]：</p>
+<ol>
+<li>UV = ((20年双12活动访客/20年双12预热访客) + (99活动访客/99预热访客)) / 2 × 21年双12预热访客 = <strong>202,258</strong>；</li>
+<li>支付转化率：20年99对比21年双12差值 0.3%，20年99对比21年99差值 0.2%，两路推算均为 1.9%，取 <strong>1.9%</strong>；</li>
+<li>客单价 = (1 − (20年双12客件数 − 20年双11客件数)/20年双11客件数) × 21年双11客件数 × 21年双11件单价 = (1 − (2.3−2.8)/2.8) × 2.9 × 1179 = <strong>2,875 元</strong>；</li>
+<li>GMV = 202,258 × 1.9% × 2,875 ≈ <strong>1,104 万</strong>，最终实际差异仅 <strong>4%</strong> [3]。</li>
+</ol>
+<p>辅助公式：<strong>预热期 GMV = 加购人数 × 加购支付转化率 × 客单价</strong>。为什么用加购不用 UV：蓄水期的核心动作就是加购，加购数据比 UV 更能反映大促购买意向 [3]。</p>
+<h3 id="43-缺口分析与决策大促执行的核心动作"><a class="markdownIt-Anchor" href="#43-缺口分析与决策大促执行的核心动作"></a> 4.3 缺口分析与决策（大促执行的核心动作）</h3>
+<p>预估不是终点，缺口定位才是。用公式倒推拆解 [3]：</p>
+<ul>
+<li><strong>访客缺口</strong>：目标 1400 万 GMV，倒推需要 UV = GMV/客单价/转化率 = 256,293，与测算的 202,258 相比差 <strong>5.4 万 UV</strong>。继续拆流量渠道：付费流量减半但加购率反升 = 流量结构变健康（付费买来的流量更精准了）；免费流量没涨但素材没跟上 → 补素材（大促会场报名图、猜你喜欢露出素材）；</li>
+<li><strong>转化率不足</strong>：某 TOP2 款周期转化率仅 10%、退款率高达 73% → 该款有转化问题，调权益和价格（从多件多折改为直降，降低入门门槛）；</li>
+<li><strong>加购不足</strong>：按季节/产品线/尖货等级拆。例子：EW21 系列由于温度原因整体秋季加购率高于冬季加购率 → 流量分配侧重秋季 [3]。</li>
+</ul>
+<h3 id="44-评估指标"><a class="markdownIt-Anchor" href="#44-评估指标"></a> 4.4 评估指标</h3>
+<ul>
+<li>GMV（核心目标）、成交订单量、客单价；</li>
+<li>加购数、加购转化率（蓄水期核心，预判爆发的先行指标）；</li>
+<li>拉新数、新客占比、复购率（大促结构健康度）；</li>
+<li>大促 ROI（营销投入 / 增量 GMV，注意是增量）。不增量的 GMV 是「把明天的订单提前到今天」，看似光鲜实际没有增量价值。</li>
+</ul>
+<hr />
+<h2 id="五-发券-补贴"><a class="markdownIt-Anchor" href="#五-发券-补贴"></a> 五、发券 / 补贴</h2>
+<h3 id="51-业务逻辑和场景钱要花在增量上"><a class="markdownIt-Anchor" href="#51-业务逻辑和场景钱要花在增量上"></a> 5.1 业务逻辑和场景：钱要花在增量上</h3>
+<p>补贴/发券是营销里最精细的部分：<strong>给谁发、发多少、什么时候发</strong>。核心难点：发给「不发就不买」的人（增量），而不是「不发也买」的人（浪费）。</p>
+<p>先讲一个反直觉的陷阱：传统响应模型（预测「发券后会不会买」）挑出的是「最终会转化的人」，大部分是本来就会买的忠实用户。运营向管理层汇报「核销率高达 80%」看似光鲜，实际没带来任何增量销量，还白亏利润 [4]。</p>
+<p>Uplift 模型（增量模型）回答的问题不同：<strong>「发券相比不发，能多带来多大的购买概率提升？」</strong>[4]</p>
+<p>因果推断视角下，任何营销干预面对的用户分四类（发券业务最重要的概念）[4]：</p>
+<table>
+<thead>
+<tr>
+<th>用户类型</th>
+<th>发券后</th>
+<th>不发券</th>
+<th>应对策略</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>说服型（Persuadables）</td>
+<td>转化</td>
+<td>不转化</td>
+<td>核心目标人群，不刺激不买、刺激就买，全力触达</td>
+</tr>
+<tr>
+<td>自然转化型（Sure Things）</td>
+<td>转化</td>
+<td>转化</td>
+<td>白花钱，不给券也会买，坚决不发</td>
+</tr>
+<tr>
+<td>无动于衷型（Lost Causes）</td>
+<td>不转化</td>
+<td>不转化</td>
+<td>发不发都不买，不打扰</td>
+</tr>
+<tr>
+<td>反作用型（Sleeping Dogs）</td>
+<td>不转化</td>
+<td>转化</td>
+<td>不打扰还会买，一打扰就退订/卸载，严禁干预</td>
+</tr>
+</tbody>
+</table>
+<p><strong>完整业务例子</strong>（手机品牌换机补贴，四类用户对号入座）[4]：</p>
+<p>某品牌推新旗舰，计划给在网 2 年以上的老用户发「200 元以旧换新券」，预算只够发 10 万张。四位典型用户：</p>
+<ul>
+<li><strong>用户 A（旗舰粉）</strong>：近 3 年买过 2 台旗舰机，天天刷新品页，已加购。传统模型预估购买概率 90%，优先发券。但他原本就会全价买，发券白亏 200 元（自然转化型）；</li>
+<li><strong>用户 B（观望者）</strong>：老机用了 800 天、屏幕碎了，预算紧，搜过「换电池」。传统模型预估 45%，排不上预算没发券。结果他没买，去修了屏幕（说服型，痛失订单）；</li>
+<li><strong>用户 C（低频机）</strong>：只打电话，几乎无线上行为。预估 5%，不发券，正确（无动于衷型）；</li>
+<li><strong>用户 D（厌烦型）</strong>：高频使用但讨厌营销通知。预估 20%，传统模型不发券，正确，他自己在线下店自然换了（反作用型）。</li>
+</ul>
+<p>Uplift 模型的判断：A 增量 +2%（不发券，省 200 元）；<strong>B 增量 +45%（必须发券，200 元撬动 4000+ 元销售）</strong>；C 增量 +1%（不发）；D 增量 −15%（坚决不打扰，避免激怒流失）[4]。</p>
+<h3 id="52-建模思路和技术关注点"><a class="markdownIt-Anchor" href="#52-建模思路和技术关注点"></a> 5.2 建模思路和技术关注点</h3>
+<p><strong>数学定义（CATE，条件平均处理效应）</strong>[4]：</p>
+<p class='katex-block'><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><mi>τ</mi><mo stretchy="false">(</mo><mi>X</mi><mo stretchy="false">)</mo><mo>=</mo><mi mathvariant="double-struck">E</mi><mo stretchy="false">[</mo><mi>Y</mi><mo>∣</mo><mi>X</mi><mo separator="true">,</mo><mi>T</mi><mo>=</mo><mn>1</mn><mo stretchy="false">]</mo><mo>−</mo><mi mathvariant="double-struck">E</mi><mo stretchy="false">[</mo><mi>Y</mi><mo>∣</mo><mi>X</mi><mo separator="true">,</mo><mi>T</mi><mo>=</mo><mn>0</mn><mo stretchy="false">]</mo></mrow><annotation encoding="application/x-tex">\tau(X) = \mathbb{E}[Y \mid X, T=1] - \mathbb{E}[Y \mid X, T=0]
+</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.1132em;">τ</span><span class="mopen">(</span><span class="mord mathnormal" style="margin-right:0.07847em;">X</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord"><span class="mord mathbb">E</span></span><span class="mopen">[</span><span class="mord mathnormal" style="margin-right:0.22222em;">Y</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">∣</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:0.8777699999999999em;vertical-align:-0.19444em;"></span><span class="mord mathnormal" style="margin-right:0.07847em;">X</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.16666666666666666em;"></span><span class="mord mathnormal" style="margin-right:0.13889em;">T</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord">1</span><span class="mclose">]</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord"><span class="mord mathbb">E</span></span><span class="mopen">[</span><span class="mord mathnormal" style="margin-right:0.22222em;">Y</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">∣</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:0.8777699999999999em;vertical-align:-0.19444em;"></span><span class="mord mathnormal" style="margin-right:0.07847em;">X</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.16666666666666666em;"></span><span class="mord mathnormal" style="margin-right:0.13889em;">T</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord">0</span><span class="mclose">]</span></span></span></span></span></p>
+<p>X 是用户特征，T 是干预变量（1=发券），Y 是结果（是否购买）。τ(X) 就是该用户的增量得分。</p>
+<p><strong>为什么不能直接观测</strong>：同一个用户永远只能看到一边：发了券就看不到「不发他会怎样」。这是反事实问题，必须靠实验设计 + 建模解决 [4,10]。</p>
+<p><strong>三大建模流派</strong>（技术关注点：选型取决于实验设计和样本量）[4]：</p>
+<ol>
+<li><strong>元学习器</strong>（最容易落地，复用 LightGBM/XGBoost）：
+<ul>
+<li>S-Learner：把 T 当普通特征，一个模型学 Y = f(X, T)，预测时算 f(X,1) − f(X,0)。缺点：高维特征下 T 容易被稀释，增量偏保守；</li>
+<li>T-Learner：实验组、对照组各训一个模型，预测时求差。缺点：两个模型各自优化转化率而不是增量，作差放大误差；</li>
+<li>X-Learner：针对实验/对照样本量极度不均衡（如 90% vs 10%）的两阶段修正，效果通常更优。</li>
+</ul>
+</li>
+<li><strong>标签变换法</strong>：构造合成标签 Z = Y·T + (1−Y)·(1−T)，可证明 2P(Z=1|X) − 1 = τ(X)。直接用标准二分类器即可，但要求 A/B 实验严格 1:1 分流 [4]；</li>
+<li><strong>树模型改进</strong>：改分裂准则，不用 Gini/信息增益，直接最大化左右子树实验组与对照组的分布差异（KL 散度/欧氏距离/卡方散度）。代表开源库：Uber CausalML、微软 EconML [4]。</li>
+</ol>
+<p><strong>校准</strong>：IPW 代理标签（逆倾向加权，构造期望等于真实增量的标签）噪声大但排序可靠，用保序回归把原始输出校准成可用分数，保证阈值决策的排序不变 [10]。</p>
+<h3 id="53-评估指标"><a class="markdownIt-Anchor" href="#53-评估指标"></a> 5.3 评估指标</h3>
+<ul>
+<li><strong>Qini 曲线/系数</strong>：把人群按预测增量从高到低排序分 10 等份，横轴人群比例、纵轴累计净增转化数。曲线与随机基线的面积差越大，模型增量捕获能力越强 [4]；</li>
+<li>AUUC（Uplift 曲线下面积，Qini 的变体）[4]；</li>
+<li>业务指标：<strong>增量 GMV、增量 ROI</strong>（发券组 GMV 减自然组，除以补贴成本）、核销率、补贴浪费率（发给「不发也买」人群的占比）。</li>
+</ul>
+<p>注意：<strong>Uplift 模型不能用传统 AUC 评估</strong>，AUC 衡量的是「买不买」的排序，不是「增量」的排序 [4]。</p>
+<h3 id="54-落地流程以-t-learner-为例4"><a class="markdownIt-Anchor" href="#54-落地流程以-t-learner-为例4"></a> 5.4 落地流程（以 T-Learner 为例）[4]</h3>
+<ol>
+<li>准备样本：用历史上一次随机分流营销记录（实验组发券/对照组不发，特征 X + 标签 Y）；</li>
+<li>训练两模型：M₁ 学「发券状态下什么特征容易买」，M₀ 学「自然状态下什么特征自发买」；</li>
+<li>全量打分：对 1000 万存量用户算增量分（B 用户：0.60 − 0.15 = 0.45）；</li>
+<li>截取阈值：按增量分从高到低排序，只发 Top 10 万，绝大多数都是 B 类用户。</li>
+</ol>
+<hr />
+<h2 id="六-定价"><a class="markdownIt-Anchor" href="#六-定价"></a> 六、定价</h2>
+<h3 id="61-业务逻辑和场景价格是转化率与毛利的跷跷板"><a class="markdownIt-Anchor" href="#61-业务逻辑和场景价格是转化率与毛利的跷跷板"></a> 6.1 业务逻辑和场景：价格是转化率与毛利的跷跷板</h3>
+<p>价格上调 → 毛利升、转化率降；价格下调 → 转化率升、毛利降。定价业务就是在这个跷跷板上找最优解。</p>
+<p>场景：平台自营的某款保温杯，成本 60 元，售价 100 元，毛利 40%。竞品同款卖 90 元，这款销量在跌。定价团队要决策：跟价到 95 元（毛利降 5 个点但销量可能回升）？还是维持 100 元？还是先观察价格弹性再动？</p>
+<p>三种基础策略 [7]：</p>
+<ul>
+<li><strong>基于成本</strong>：成本 + 固定毛利。简单，但完全忽略市场（竞品降价了你不知道）；</li>
+<li><strong>基于竞争者</strong>：盯对手价格跟价。标品（数码、家电）常用，但容易陷入价格战；</li>
+<li><strong>基于需求</strong>：按需求弹性定价，需求大时涨、小时降。最复杂但最优。</li>
+</ul>
+<p>动态定价的核心是<strong>估计需求函数 d(p)</strong>，即价格变化对销量的影响，然后在收入/毛利最优的价格点定价 [7]。</p>
+<h3 id="62-建模思路两阶段引擎"><a class="markdownIt-Anchor" href="#62-建模思路两阶段引擎"></a> 6.2 建模思路：两阶段引擎</h3>
+<p>业界主流的两阶段架构 [7]：</p>
+<p><strong>阶段一：估计价格-需求依赖</strong>。用历史销售数据（各价格点对应的销量）拟合需求函数。关键概念<strong>价格弹性</strong>：价格变 1%，销量变百分之几。要考虑的因素：季节性、替代品（降价 A 会抢 B 的销量，蚕食效应）、竞品价格、库存水平、促销活动 [7]。</p>
+<p><strong>阶段二：组合价格优化</strong>。用阶段一的需求函数，在约束下（毛利下限、库存、价格带）求解最优价格组合：max 收入 = p × d(p)。注意是「组合」而非单品，一个商品降价会影响相关商品销量（买 A 的人可能顺手买 B，也可能 A 降价后 B 卖不动），全局优化是动态定价相对人工的巨大优势 [7]。</p>
+<p><strong>落地模块化</strong>（业界实践，数字有出处）[7]：</p>
+<table>
+<thead>
+<tr>
+<th>模块</th>
+<th>场景</th>
+<th>做法</th>
+<th>实际效果</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>长尾模块</td>
+<td>新品/冷门品没有历史数据</td>
+<td>用属性相似度把畅销品的数据「借」给长尾品定价</td>
+<td>收入与毛利 +3%（美国 200 万 SKU 零售商）</td>
+</tr>
+<tr>
+<td>弹性模块</td>
+<td>标品多因素调价</td>
+<td>基于 10TB 交易记录的多因素模型（价格/替代品/促销/库存/季节）</td>
+<td>毛利 +10%、GMV +3%（亚洲电商）</td>
+</tr>
+<tr>
+<td>KVI 模块</td>
+<td>价格敏感的印象商品</td>
+<td>对每件商品做「价格认知重要性」打分（0-100），KVI 上敢亏</td>
+<td>维持「最低价」心智（欧洲杂货零售商）</td>
+</tr>
+<tr>
+<td>竞争反应</td>
+<td>标品价格战</td>
+<td>实时跟价，注意两个跟价系统互相竞价会失控</td>
+<td>亚马逊两商家互相跟价把一本书炒到 2360 万美元（经典反例）</td>
+</tr>
+<tr>
+<td>时间定价</td>
+<td>时效商品</td>
+<td>高峰提价、临期降价</td>
+<td>航空、酒店、Uber 激增定价</td>
+</tr>
+</tbody>
+</table>
+<p><strong>探索-利用</strong>：新价格点没有历史数据，用汤普森抽样（Thompson Sampling）在线方法，边探索不同价格的需求、边收敛到最优价格 [7]。</p>
+<h3 id="63-评估指标和技术关注点"><a class="markdownIt-Anchor" href="#63-评估指标和技术关注点"></a> 6.3 评估指标和技术关注点</h3>
+<ul>
+<li>转化率（价格上调的代价）、毛利率（价格上调的收益）、GMV；</li>
+<li>价格弹性估计的置信度（模型质量，弹性估错一切白搭）；</li>
+<li>价格竞争力（与竞品价差）、渠道间价差（价格一致性）。</li>
+</ul>
+<p><strong>技术关注点</strong>：价格是用户最敏感的信号。KVI 商品（鸡蛋、牛奶这类价格被记住的商品）乱调价伤平台心智；频繁变价伤信任。动态定价要在「最优」和「稳定」之间找平衡 [7]。</p>
+<hr />
+<h2 id="七-风控"><a class="markdownIt-Anchor" href="#七-风控"></a> 七、风控</h2>
+<h3 id="71-业务逻辑和场景风控不赚钱但防止亏钱"><a class="markdownIt-Anchor" href="#71-业务逻辑和场景风控不赚钱但防止亏钱"></a> 7.1 业务逻辑和场景：风控不赚钱，但防止亏钱</h3>
+<p>风控的目标函数和作弊者相反：作弊者用低成本（批量账号、虚假行为）薅平台羊毛（补贴、流量、信誉），平台要识别并拦截。</p>
+<p>场景（一次完整的薅羊毛攻击）[8]：团伙用改机工具批量注册 10 万个新账号（同一台手机改设备指纹，重复注册），每个账号领 5 元新人券，下单买 1 元商品（用券后实付 0 元），收货地址全部填同一个仓库。这一套下来，平台损失 40 万补贴，团伙拿到 10 万个 1 元商品转卖。风控要在「注册」「领券」「下单」「收货」任何一个环节拦下它。</p>
+<p>电商七大场景 × 七大风险 [8]：</p>
+<table>
+<thead>
+<tr>
+<th>业务场景</th>
+<th>主要风险</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>注册/登录</td>
+<td>虚假注册、批量登录、盗号</td>
+</tr>
+<tr>
+<td>商品发布</td>
+<td>虚假商品、低价诱导、刷单</td>
+</tr>
+<tr>
+<td>购物车/下单</td>
+<td>恶意占库存、批量下单、竞争对手恶意下单</td>
+</tr>
+<tr>
+<td>支付/退款</td>
+<td>盗刷、虚假退款、退款滥用</td>
+</tr>
+<tr>
+<td>物流/收货</td>
+<td>虚假物流、恶意退货、拒收</td>
+</tr>
+<tr>
+<td>评论/评分</td>
+<td>虚假好评、恶意差评、刷评</td>
+</tr>
+<tr>
+<td>营销活动/券</td>
+<td>恶意抢购、刷领券、券滥用</td>
+</tr>
+</tbody>
+</table>
+<h3 id="72-建模思路三层递进"><a class="markdownIt-Anchor" href="#72-建模思路三层递进"></a> 7.2 建模思路：三层递进</h3>
+<ol>
+<li><strong>规则引擎</strong>（第一层）：快、可解释、覆盖已知模式 [8]：
+<ul>
+<li>设备指纹：同一设备多账号（上面例子：同一台手机注册 100 个号领新人券，设备指纹一查就露馅）；</li>
+<li>频控：同 IP/设备下单频率超阈值；</li>
+<li>地址聚类：批量收货地址高度重复（全部指向同一个仓库）。</li>
+</ul>
+</li>
+<li><strong>机器学习模型</strong>（第二层）：用户行为特征 → 风险分，覆盖规则覆盖不到的复杂模式（组合特征、长尾欺诈）[8]；</li>
+<li><strong>时序异常检测</strong>（第三层）：行为序列的模式识别：「注册→领券→下单→退款」这条高危路径，正常用户几乎不会走 [8]。</li>
+</ol>
+<p>架构上<strong>实时 + 离线并行</strong> [8]：实时策略（Kafka/Flink 流处理）在请求链路里毫秒级拦截；离线策略（Hadoop/Spark 批处理）做深度分析、挖掘新风险特征、更新模型。</p>
+<h3 id="73-评估指标核心矛盾拦截率-vs-误杀率"><a class="markdownIt-Anchor" href="#73-评估指标核心矛盾拦截率-vs-误杀率"></a> 7.3 评估指标（核心矛盾：拦截率 vs 误杀率）</h3>
+<ul>
+<li><strong>拦截率/识别率</strong>：抓到的风险占比；</li>
+<li><strong>误杀率</strong>：被误伤的正常用户占比，误杀一个正常用户，损失的不只是一个订单，可能是一个长期用户；</li>
+<li>风险订单占比、风险用户占比（风险水位监控）；</li>
+<li><strong>资损金额</strong>：风控最直接的 KPI（拦截挽回的损失）；</li>
+<li>响应延迟：实时决策的 P99（超时即放行，风险漏过）。</li>
+</ul>
+<p><strong>决策方式</strong>：拦截率 × 误杀率的成本曲线，每多拦一笔风险资损，可能误杀 x 个正常用户（损失 y 元 GMV）。成熟团队画这条曲线找平衡点，而不是单纯追求拦截率 [8]。</p>
+<hr />
+<h2 id="八-跨业务线总结"><a class="markdownIt-Anchor" href="#八-跨业务线总结"></a> 八、跨业务线总结</h2>
+<ol>
+<li><strong>底层能力同构</strong>：搜索/推荐/广告共享「召回→粗排→精排→重排」流水线（算力瓶颈驱动的分层漏斗）[1,2]，共享 CTR/CVR 预估与校准能力，广告多一层 eCPM 和出价 [5,9]；</li>
+<li><strong>排序与校准是两件事</strong>：AUC 管排序（相对大小）、COPC/校准曲线管绝对值。排序错了校准救不了；绝对值错了出价、定价、补贴全错 [5,10]；</li>
+<li><strong>增量思维贯穿</strong>：营销 ROI、发券 ROI、活动效果全部要求「增量」（对比不干预的自然组），uplift/因果推断是通用工具 [4,10]；</li>
+<li><strong>指标三层结构</strong>：体验指标（相关性/多样性/误杀率）→ 效率指标（CTR/CVR）→ 钱指标（GMV/eCPM/ROI/毛利）。钱指标是最终裁判，前两层是过程诊断 [2,5]；</li>
+<li><strong>所有优化都是约束下的优化</strong>：出价有预算节奏，发券有预算上限，定价有毛利下限，风控有误杀成本 [5,7,8]。</li>
+</ol>
+<h2 id="参考与素材"><a class="markdownIt-Anchor" href="#参考与素材"></a> 参考与素材</h2>
+<p>主要来源：</p>
+<p>[1] 电商推荐算法深度解析：从10亿商品池到你眼前的10个链接. 知乎专栏<br />
+[2] 王树森《搜索引擎技术》读书笔记. 知乎专栏<br />
+[3] 如何做好电商大促销售预估模型. 知乎专栏<br />
+[4] Uplift 模型. 知乎专栏<br />
+[5] 程序化广告：出价是怎么算出来的. 知乎专栏<br />
+[6] 搞懂 eCPM：你写的不是文章，而是拍卖会. 知乎专栏<br />
+[7] 机器学习如何辅助动态定价. 知乎专栏<br />
+[8] 电商风控全景. 知乎专栏<br />
+[9] ESMM. SIGIR 2018. arXiv:1804.07931<br />
+[10] 校准-保序回归. 知乎专栏</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="https://shodyssey.github.io">Shodyssey</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="https://shodyssey.github.io/2026/09/18/ecommerce-business-blog/">https://shodyssey.github.io/2026/09/18/ecommerce-business-blog/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来源 <a href="https://shodyssey.github.io" target="_blank">Shodyssey</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/%E7%94%B5%E5%95%86/">电商</a><a class="post-meta__tags" href="/tags/%E6%90%9C%E7%B4%A2/">搜索</a><a class="post-meta__tags" href="/tags/%E6%8E%A8%E8%8D%90/">推荐</a><a class="post-meta__tags" href="/tags/%E5%B9%BF%E5%91%8A/">广告</a><a class="post-meta__tags" href="/tags/%E8%90%A5%E9%94%80/">营销</a><a class="post-meta__tags" href="/tags/%E5%AE%9A%E4%BB%B7/">定价</a><a class="post-meta__tags" href="/tags/%E9%A3%8E%E6%8E%A7/">风控</a></div><div class="post-share"><div class="social-share" data-image="/img/butterfly-icon.png" data-sites="facebook,x,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><a class="pagination-related" href="/2026/09/22/isotonic-regression-blog/" title="保序回归"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info"><div class="info-1"><div class="info-item-1">上一篇</div><div class="info-item-2">保序回归</div></div><div class="info-2"><div class="info-item-1"> 保序回归原理与校准实践 先说结论：保序回归（Isotonic Regression）是带单调约束的最小二乘，非参数、只要求拟合函数单调。它在工业界的主要用途是概率校准，把模型的预估概率拉回真实概率，同时不破坏排序。CTR/CVR 出价、uplift 决策都用它兜底。 这篇文章尽量不预设前置知识。每个概念从&quot;它是什么、为什么存在&quot;讲起，再落到做法和原因。  一、模型输出的是什么，为什么需要校准  1.1 分类模型的输出有两种用途 一个 CTR 模型（点击率预估模型）训练完之后，对每条曝光样本会输出一个分数。这个分数有两种用法：  排序：把分数从高到低排，决定先展示哪个商品。这种用法只关心分数大小关系，不关心分数的绝对值； 出价/决策：把分数当成&quot;这个用户点击这条广告的概率&quot;，拿去算钱。这种用法要求分数本身就是概率，绝对值必须准。  大部分模型天然擅长第一种，不擅长第二种。深度学习模型（DNN、树模型、各种多任务网络）输出的 sigmoid 分数，是&quot;模型自信程度&quot;的某种单调变换，不等于真实概率。常见偏差：整体偏高（模型对...</div></div></div></a><a class="pagination-related" href="/2026/09/17/cvr-esmm-blog/" title="CVR 预估 - ESMM：全空间多任务建模的推导与隐含假设"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-right"><div class="info-1"><div class="info-item-1">下一篇</div><div class="info-item-2">CVR 预估 - ESMM：全空间多任务建模的推导与隐含假设</div></div><div class="info-2"><div class="info-item-1"> CVR 预估 - ESMM：全空间多任务建模的推导与隐含假设 推荐系统里 CTR 预估的资料汗牛充栋，CVR 预估长期活在它的阴影里。但 OCPC 出价、电商排序里点击偏好与购买偏好的平衡，底层都压着 CVR 这个数——它估不准，出价就亏，排序就偏。阿里 2018 年 SIGIR 的 ESMM（Entire Space Multi-Task Model）[1] 是这个方向绕不开的一篇：4 页短文，两个问题，一个恒等式，成了之后所有&quot;级联多目标&quot;建模的起点。 这篇笔记把 ESMM 拆到底：先厘清三个容易混的概率定义，再走完核心推导，然后做一件多数解读没做的事——把论文的隐含假设逐条拎出来剖析。模型不难，难的是知道它在什么前提下成立、什么时候会失效。  一、为什么是 CVR：从 OCPC 定价说起 先回答一个前置问题：为什么不直接预估&quot;曝光→转化&quot;的概率，非要绕&quot;点击后转化&quot;这个条件概率？ 以 OCPC 广告为例 [5]。平台按点击收费，广告主按转化赚钱，双方约定一个期望转化成本（比如每成交一单，广告投入上限 10 元）。...</div></div></div></a></nav></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="/img/butterfly-icon.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">Shodyssey</div><div class="author-info-description">分享推荐系统、机器学习的学习记录与思考过程</div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">10</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">44</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">4</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/xxxxxx"><i class="fab fa-github"></i><span>Follow Me</span></a></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">This is my Blog</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E7%94%B5%E5%95%86%E5%B9%B3%E5%8F%B0%E4%B8%BB%E8%A6%81%E4%B8%9A%E5%8A%A1"><span class="toc-text"> 电商平台主要业务</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%94%B5%E5%95%86%E9%A2%86%E5%9F%9F%E7%9A%84%E6%A6%82%E5%BF%B5%E8%AF%8D%E5%85%B8"><span class="toc-text"> 电商领域的概念词典</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%80-%E6%90%9C%E7%B4%A2"><span class="toc-text"> 一、搜索</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#11-%E4%B8%9A%E5%8A%A1%E9%80%BB%E8%BE%91%E5%92%8C%E5%9C%BA%E6%99%AF"><span class="toc-text"> 1.1 业务逻辑和场景</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#12-%E4%B8%9A%E5%8A%A1%E9%93%BE%E8%B7%AF%E4%B8%BA%E4%BB%80%E4%B9%88%E6%98%AF%E6%BC%8F%E6%96%97"><span class="toc-text"> 1.2 业务链路：为什么是漏斗</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#13-%E5%BB%BA%E6%A8%A1%E6%80%9D%E8%B7%AF%E5%92%8C%E6%8A%80%E6%9C%AF%E5%85%B3%E6%B3%A8%E7%82%B9"><span class="toc-text"> 1.3 建模思路和技术关注点</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#14-%E8%AF%84%E4%BC%B0%E6%8C%87%E6%A0%87"><span class="toc-text"> 1.4 评估指标</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%8C-%E6%8E%A8%E8%8D%90"><span class="toc-text"> 二、推荐</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#21-%E4%B8%9A%E5%8A%A1%E9%80%BB%E8%BE%91%E5%92%8C%E5%9C%BA%E6%99%AF"><span class="toc-text"> 2.1 业务逻辑和场景</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#22-%E4%B8%9A%E5%8A%A1%E9%93%BE%E8%B7%AF10-%E4%BA%BF%E5%88%B0-10-%E7%9A%84%E6%BC%8F%E6%96%97"><span class="toc-text"> 2.2 业务链路：10 亿到 10 的漏斗</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#23-%E5%BB%BA%E6%A8%A1%E6%80%9D%E8%B7%AF%E5%92%8C%E6%8A%80%E6%9C%AF%E5%85%B3%E6%B3%A8%E7%82%B9"><span class="toc-text"> 2.3 建模思路和技术关注点</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#24-%E8%AF%84%E4%BC%B0%E6%8C%87%E6%A0%87"><span class="toc-text"> 2.4 评估指标</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%89-%E5%B9%BF%E5%91%8A"><span class="toc-text"> 三、广告</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#31-%E4%B8%9A%E5%8A%A1%E9%80%BB%E8%BE%91%E5%92%8C%E5%9C%BA%E6%99%AF"><span class="toc-text"> 3.1 业务逻辑和场景</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#32-%E7%AB%9E%E4%BB%B7%E6%9C%BA%E5%88%B6ecpm-%E5%85%AC%E5%BC%8F%E4%BD%93%E7%B3%BB%E6%A0%B8%E5%BF%83"><span class="toc-text"> 3.2 竞价机制：eCPM 公式体系（核心）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#33-%E5%BB%BA%E6%A8%A1%E6%80%9D%E8%B7%AF%E5%92%8C%E6%8A%80%E6%9C%AF%E5%85%B3%E6%B3%A8%E7%82%B9"><span class="toc-text"> 3.3 建模思路和技术关注点</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#34-%E8%AF%84%E4%BC%B0%E6%8C%87%E6%A0%87"><span class="toc-text"> 3.4 评估指标</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9B%9B-%E8%90%A5%E9%94%80-%E5%A4%A7%E4%BF%83"><span class="toc-text"> 四、营销 &#x2F; 大促</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#41-%E4%B8%9A%E5%8A%A1%E9%80%BB%E8%BE%91%E5%92%8C%E5%9C%BA%E6%99%AF"><span class="toc-text"> 4.1 业务逻辑和场景</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#42-%E5%BB%BA%E6%A8%A1%E6%80%9D%E8%B7%AFgmv-%E6%8B%86%E8%A7%A3%E5%85%AC%E5%BC%8F%E5%A4%A7%E4%BF%83%E9%A2%84%E4%BC%B0%E7%9A%84%E6%A0%B8%E5%BF%83%E6%96%B9%E6%B3%95%E8%AE%BA"><span class="toc-text"> 4.2 建模思路：GMV 拆解公式（大促预估的核心方法论）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#43-%E7%BC%BA%E5%8F%A3%E5%88%86%E6%9E%90%E4%B8%8E%E5%86%B3%E7%AD%96%E5%A4%A7%E4%BF%83%E6%89%A7%E8%A1%8C%E7%9A%84%E6%A0%B8%E5%BF%83%E5%8A%A8%E4%BD%9C"><span class="toc-text"> 4.3 缺口分析与决策（大促执行的核心动作）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#44-%E8%AF%84%E4%BC%B0%E6%8C%87%E6%A0%87"><span class="toc-text"> 4.4 评估指标</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%94-%E5%8F%91%E5%88%B8-%E8%A1%A5%E8%B4%B4"><span class="toc-text"> 五、发券 &#x2F; 补贴</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#51-%E4%B8%9A%E5%8A%A1%E9%80%BB%E8%BE%91%E5%92%8C%E5%9C%BA%E6%99%AF%E9%92%B1%E8%A6%81%E8%8A%B1%E5%9C%A8%E5%A2%9E%E9%87%8F%E4%B8%8A"><span class="toc-text"> 5.1 业务逻辑和场景：钱要花在增量上</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#52-%E5%BB%BA%E6%A8%A1%E6%80%9D%E8%B7%AF%E5%92%8C%E6%8A%80%E6%9C%AF%E5%85%B3%E6%B3%A8%E7%82%B9"><span class="toc-text"> 5.2 建模思路和技术关注点</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#53-%E8%AF%84%E4%BC%B0%E6%8C%87%E6%A0%87"><span class="toc-text"> 5.3 评估指标</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#54-%E8%90%BD%E5%9C%B0%E6%B5%81%E7%A8%8B%E4%BB%A5-t-learner-%E4%B8%BA%E4%BE%8B4"><span class="toc-text"> 5.4 落地流程（以 T-Learner 为例）[4]</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%AD-%E5%AE%9A%E4%BB%B7"><span class="toc-text"> 六、定价</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#61-%E4%B8%9A%E5%8A%A1%E9%80%BB%E8%BE%91%E5%92%8C%E5%9C%BA%E6%99%AF%E4%BB%B7%E6%A0%BC%E6%98%AF%E8%BD%AC%E5%8C%96%E7%8E%87%E4%B8%8E%E6%AF%9B%E5%88%A9%E7%9A%84%E8%B7%B7%E8%B7%B7%E6%9D%BF"><span class="toc-text"> 6.1 业务逻辑和场景：价格是转化率与毛利的跷跷板</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#62-%E5%BB%BA%E6%A8%A1%E6%80%9D%E8%B7%AF%E4%B8%A4%E9%98%B6%E6%AE%B5%E5%BC%95%E6%93%8E"><span class="toc-text"> 6.2 建模思路：两阶段引擎</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#63-%E8%AF%84%E4%BC%B0%E6%8C%87%E6%A0%87%E5%92%8C%E6%8A%80%E6%9C%AF%E5%85%B3%E6%B3%A8%E7%82%B9"><span class="toc-text"> 6.3 评估指标和技术关注点</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%83-%E9%A3%8E%E6%8E%A7"><span class="toc-text"> 七、风控</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#71-%E4%B8%9A%E5%8A%A1%E9%80%BB%E8%BE%91%E5%92%8C%E5%9C%BA%E6%99%AF%E9%A3%8E%E6%8E%A7%E4%B8%8D%E8%B5%9A%E9%92%B1%E4%BD%86%E9%98%B2%E6%AD%A2%E4%BA%8F%E9%92%B1"><span class="toc-text"> 7.1 业务逻辑和场景：风控不赚钱，但防止亏钱</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#72-%E5%BB%BA%E6%A8%A1%E6%80%9D%E8%B7%AF%E4%B8%89%E5%B1%82%E9%80%92%E8%BF%9B"><span class="toc-text"> 7.2 建模思路：三层递进</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#73-%E8%AF%84%E4%BC%B0%E6%8C%87%E6%A0%87%E6%A0%B8%E5%BF%83%E7%9F%9B%E7%9B%BE%E6%8B%A6%E6%88%AA%E7%8E%87-vs-%E8%AF%AF%E6%9D%80%E7%8E%87"><span class="toc-text"> 7.3 评估指标（核心矛盾：拦截率 vs 误杀率）</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%AB-%E8%B7%A8%E4%B8%9A%E5%8A%A1%E7%BA%BF%E6%80%BB%E7%BB%93"><span class="toc-text"> 八、跨业务线总结</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8F%82%E8%80%83%E4%B8%8E%E7%B4%A0%E6%9D%90"><span class="toc-text"> 参考与素材</span></a></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/09/22/isotonic-regression-blog/" title="保序回归">保序回归</a><time datetime="2026-09-22T14:00:00.000Z" title="发表于 2026-09-22 22:00:00">2026-09-22</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/09/18/ecommerce-business-blog/" title="电商平台主要业务">电商平台主要业务</a><time datetime="2026-09-18T00:30:00.000Z" title="发表于 2026-09-18 08:30:00">2026-09-18</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/09/17/cvr-esmm-blog/" title="CVR 预估 - ESMM：全空间多任务建模的推导与隐含假设">CVR 预估 - ESMM：全空间多任务建模的推导与隐含假设</a><time datetime="2026-09-17T12:30:00.000Z" title="发表于 2026-09-17 20:30:00">2026-09-17</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/09/11/ltv-modeling-research/" title="LTV 建模的分布假设与技术分析">LTV 建模的分布假设与技术分析</a><time datetime="2026-09-11T11:30:00.000Z" title="发表于 2026-09-11 19:30:00">2026-09-11</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/09/04/lightgbm-engineering/" title="LightGBM 的原理与工程实践">LightGBM 的原理与工程实践</a><time datetime="2026-09-04T11:30:00.000Z" title="发表于 2026-09-04 19:30:00">2026-09-04</time></div></div></div></div></div></div></main><footer id="footer"><div class="footer-other"><div class="footer-copyright"><span class="copyright">&copy;&nbsp;2025 - 2026 By Shodyssey</span><span class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo 8.1.2</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly 5.7.0</a></span></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=5.7.0"></script><script src="/js/main.js?v=5.7.0"></script><div class="js-pjax"><script>(async () => {
+  const showKatex = () => {
+    document.querySelectorAll('#article-container .katex').forEach(el => el.classList.add('katex-show'))
+  }
+
+  if (!window.katex_js_css) {
+    window.katex_js_css = true
+    await btf.getCSS('https://cdn.jsdelivr.net/npm/katex@0.18.1/dist/katex.min.css')
+    if (false) {
+      await btf.getScript('https://cdn.jsdelivr.net/npm/katex@0.18.1/dist/contrib/copy-tex.min.js')
+    }
+  }
+
+  showKatex()
+})()</script></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
